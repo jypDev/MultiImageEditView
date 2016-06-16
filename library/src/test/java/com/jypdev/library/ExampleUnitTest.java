@@ -1,4 +1,4 @@
-package com.jypdev.example;
+package com.jypdev.library;
 
 import org.junit.Test;
 

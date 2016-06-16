@@ -1,4 +1,4 @@
-package com.jypdev.multiimageeditview;
+package com.jypdev.library;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

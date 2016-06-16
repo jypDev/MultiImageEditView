@@ -1,25 +1,19 @@
-package com.jypdev.multiimageeditview.view;
+package com.jypdev.muitlimageeditview.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-
-import com.jypdev.multiimageeditview.GuiManager;
-import com.jypdev.multiimageeditview.R;
-import com.jypdev.multiimageeditview.model.ImageItem;
+import com.jypdev.muitlimageeditview.model.ImageItem;
 
 import java.util.ArrayList;
 
@@ -29,8 +23,7 @@ import java.util.ArrayList;
 public class MatrixDrawView extends View {
 
     // 디버깅 정보
-    private static final String TAG = "ViewTouchImage";
-    private static final boolean D = true;
+    private static final String TAG = "MatrixDrawView";
 
     private static final int NONE = 0;
     private static final int DRAG = 1;
@@ -38,29 +31,29 @@ public class MatrixDrawView extends View {
     private static final int REMOVE = 3;
     private int mode = NONE;
 
-    private PointF start = new PointF();
-
     private boolean isInit = false;
+    private Paint paint;
 
     private ArrayList<ImageItem> arrayList = new ArrayList<>();
     private ImageItem currentItem;
     private ImageItem lastItem;
-    private float[] currentValue = new float[9];
 
-    private float currentAngle;
-    private float lastAngle;
-
-
+    //Drag
+    private PointF start = new PointF();
     private float pointX = 0;
     private float pointY = 0;
 
-    private Paint paint;
+    //Matrix
+    private float[] currentValue = new float[9];
 
-    private Button testButton;
+    //Rotate
+    private float currentAngle;
+    private float lastAngle;
 
+    //Detector
     private ScaleGestureDetector gestureDetector;
-    private DragListener dragListener;
-    private RotationGestureDetector mRotationDetector;
+    private DragDetector dragDetector;
+    private RotationGestureDetector rotationDetector;
 
     public MatrixDrawView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -74,9 +67,25 @@ public class MatrixDrawView extends View {
         this(context, null);
     }
 
+    //public method
+    public void setRotateMode(){
+        if (lastItem != null) {
+            converteBitmap(lastItem);
+        }
+        mode = ROTATE;
+    }
+
+    public void setRemoveMode() {
+        mode = REMOVE;
+    }
+
+    public void addImageItem(ImageItem item){
+        arrayList.add(item);
+        invalidate();
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (D) Log.v(TAG, "onLayout");
         super.onLayout(changed, left, top, right, bottom);
         if (isInit == false) {
             init();
@@ -86,7 +95,6 @@ public class MatrixDrawView extends View {
 
 
     protected void init() {
-        if (D) Log.v(TAG, "init");
         paint = new Paint();
         paint.setAntiAlias(true);  //모서리 부드럽게
         paint.setDither(true); //단말의 색표현력이 떨어질때 낮게 표현
@@ -98,27 +106,8 @@ public class MatrixDrawView extends View {
         paint.setStrokeWidth(2);
 
         gestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
-        dragListener = new DragListener();
-        mRotationDetector = new RotationGestureDetector();
-
-        arrayList.add(new ImageItem(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.sensor)));
-        arrayList.add(new ImageItem(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.icon)));
-
-        testButton = GuiManager.getInstance().getButton();//setting at the outside
-        testButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (lastItem != null) {
-                    converteBitmap(lastItem);
-                }
-                if (mode != ROTATE) {
-                    mode = ROTATE;
-                } else {
-                    mode = NONE;
-                }
-                Toast.makeText(getContext(), "mode: " + mode, Toast.LENGTH_SHORT).show();
-            }
-        });
+        dragDetector = new DragDetector();
+        rotationDetector = new RotationGestureDetector();
     }
 
     private void converteBitmap(ImageItem item) {
@@ -137,8 +126,11 @@ public class MatrixDrawView extends View {
         super.onDraw(canvas);
 
         for (ImageItem item : arrayList) {
-            canvas.drawBitmap(item.getBitmap(), item.getMatrix(), item.getPaint());                                             //image
-            canvas.drawRect(item.getX(), item.getY(), item.getX() + item.getWidth(), item.getY() + item.getHeight(), paint);    //image rect outline
+            canvas.drawBitmap(item.getBitmap(), item.getMatrix(), item.getPaint());  //image
+
+            if(item.isSelected()) {
+                canvas.drawRect(item.getX(), item.getY(), item.getX() + item.getWidth(), item.getY() + item.getHeight(), paint);  //image rect outline
+            }
         }
     }
 
@@ -148,7 +140,7 @@ public class MatrixDrawView extends View {
 
         int x = (int) event.getX();
         int y = (int) event.getY();
-        if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
+        if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) { //item select
             if (mode != ROTATE) {
                 currentItem = getCurrentItem(x, y);
                 mode = DRAG;
@@ -159,13 +151,13 @@ public class MatrixDrawView extends View {
         if (mode == DRAG) {
             if (currentItem != null) {
                 gestureDetector.onTouchEvent(event);
-                dragListener.onTouchEvent(event);
+                dragDetector.onTouchEvent(event);
                 matrixTurning(currentItem, currentValue);
                 invalidate();
             }
         } else if (mode == ROTATE) {
             if (lastItem != null) {
-                mRotationDetector.onTouchEvent(event);
+                rotationDetector.onTouchEvent(event);
                 invalidate();
             }else{
                 if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
@@ -180,7 +172,10 @@ public class MatrixDrawView extends View {
             }
             case MotionEvent.ACTION_POINTER_UP: {
                 mode = NONE;
-                currentItem = null;
+                if(currentItem!=null) {
+                    currentItem.setSelected(false);
+                    currentItem = null;
+                }
                 currentValue = null;
             }
             break;
@@ -200,16 +195,17 @@ public class MatrixDrawView extends View {
                 if (matrixValue[5] < y && (matrixValue[5] + item.getHeight()) > y) {
                     currentValue = matrixValue;
                     imageItem = item;
-
                 }
             }
         }
         if (imageItem != null) {
+            imageItem.setSelected(true);
             arrayList.remove(imageItem);
 
             if (mode == REMOVE) {
                 //삭제모드일땐 다시 추가하지 않음.
                 imageItem = null;
+                invalidate();
             } else {
                 //삭제모드가 아닐때 아이템을 다시 추가하여 순서를 맨뒤로 추가함
                 arrayList.add(imageItem);
@@ -301,6 +297,8 @@ public class MatrixDrawView extends View {
         item.getMatrix().setValues(savedValue);
     }
 
+
+
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         public boolean onScale(ScaleGestureDetector detector) {
             float scale = currentValue[0];
@@ -316,7 +314,7 @@ public class MatrixDrawView extends View {
         }
     }
 
-    private class DragListener {
+    private class DragDetector {
         public void onTouchEvent(MotionEvent event) {
             switch (event.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN: {

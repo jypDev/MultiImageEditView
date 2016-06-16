@@ -1,4 +1,4 @@
-package com.jypdev.multiimageeditview.model;
+package com.jypdev.muitlimageeditview.model;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -16,6 +16,7 @@ public class ImageItem {
     private float height;
     private float x=0;
     private float y=0;
+    private boolean selected;
 
     public ImageItem(Bitmap bitmap) {
         this(bitmap,new Matrix());
@@ -49,6 +50,14 @@ public class ImageItem {
         this.paint = paint;
         this.width = bitmap.getWidth();
         this.height = bitmap.getHeight();
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public float getX() {
