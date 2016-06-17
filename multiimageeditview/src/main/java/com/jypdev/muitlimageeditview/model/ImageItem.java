@@ -1,6 +1,7 @@
 package com.jypdev.muitlimageeditview.model;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 

@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/multiimageeditview/MultiImageEditView.iml" filepath="$PROJECT_DIR$/multiimageeditview/MultiImageEditView.iml" />
       <module fileurl="file://$PROJECT_DIR$/MultiImageEditView1.iml" filepath="$PROJECT_DIR$/MultiImageEditView1.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MultiImageEditView/multiimageeditview.iml" filepath="$PROJECT_DIR$/MultiImageEditView/multiimageeditview.iml" />
       <module fileurl="file://$PROJECT_DIR$/multiimageeditview/multiimageeditview.iml" filepath="$PROJECT_DIR$/multiimageeditview/multiimageeditview.iml" />
     </modules>
   </component>

@@ -30,6 +30,13 @@
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/remove_button"
         android:text="add"/>
+    <Button
+        android:id="@+id/getbitmap_button"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/add_button"
+        android:text="getBitmap"/>
 
 
 </RelativeLayout>

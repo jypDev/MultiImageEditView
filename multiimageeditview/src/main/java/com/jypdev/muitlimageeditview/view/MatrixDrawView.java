@@ -84,6 +84,14 @@ public class MatrixDrawView extends View {
         invalidate();
     }
 
+    public Bitmap getPicture(){
+        if(getDrawingCache()!=null){
+            destroyDrawingCache();
+        }
+        buildDrawingCache();
+        return getDrawingCache();
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
