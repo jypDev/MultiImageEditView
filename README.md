@@ -103,7 +103,7 @@ allprojects {
 
 ```
 dependencies {
-    compile 'com.github.jypdev:multiimageeditview:1.0.0'
+    compile 'com.github.jypdev:multiimageeditview:1.+'
 }
 ```
 
