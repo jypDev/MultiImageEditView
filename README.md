@@ -42,9 +42,17 @@
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/remove_button"
         android:text="add"/>
+    <Button
+        android:id="@+id/getbitmap_button"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/add_button"
+        android:text="getBitmap"/>
 
 
 </RelativeLayout>
+
 ```
 
 ```java
@@ -61,10 +69,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.sensor)));
         view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.icon)));
-
+        view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.sparrow_icon)));
+        view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.chrome_icon)));
         Button rotateButton = (Button) findViewById(R.id.rotate_button);
         Button removeButton = (Button) findViewById(R.id.remove_button);
         Button addButton = (Button) findViewById(R.id.add_button);
+        Button getButton = (Button) findViewById(R.id.getbitmap_button);
+        getButton.setOnClickListener(this);
         rotateButton.setOnClickListener(this);
         removeButton.setOnClickListener(this);
         addButton.setOnClickListener(this);
@@ -81,9 +92,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             view.setRemoveMode();
         }else if(id==R.id.add_button){
             view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.icon)));
+        }else if(id==R.id.getbitmap_button){
+            Bitmap bitmap = view.getPicture();
+            FileOutputStream fos;
+            try {
+                fos = new FileOutputStream("/sdcard/capture.png");
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
+
 ```
 
 ### Setup
