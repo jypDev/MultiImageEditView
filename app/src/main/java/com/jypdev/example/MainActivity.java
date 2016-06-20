@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(id==R.id.rotate_button){
             view.setRotateMode();
         }else if(id==R.id.remove_button){
-            view.setRemoveMode();
+            view.removeImageItem();
         }else if(id==R.id.add_button){
             view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.icon)));
         }else if(id==R.id.getbitmap_button){

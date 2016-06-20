@@ -22,13 +22,16 @@ import java.util.ArrayList;
  */
 public class MatrixDrawView extends View {
 
+    public interface MatrixEventCallBack{
+        void onImageClick(ImageItem item);
+    }
+
     // 디버깅 정보
     private static final String TAG = "MatrixDrawView";
 
     private static final int NONE = 0;
     private static final int DRAG = 1;
     private static final int ROTATE = 2;
-    private static final int REMOVE = 3;
     private int mode = NONE;
 
     private boolean isInit = false;
@@ -55,6 +58,8 @@ public class MatrixDrawView extends View {
     private DragDetector dragDetector;
     private RotationGestureDetector rotationDetector;
 
+    private MatrixEventCallBack callBack;
+
     public MatrixDrawView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
@@ -68,6 +73,11 @@ public class MatrixDrawView extends View {
     }
 
     //public method
+
+    public void setCallBack(MatrixEventCallBack callBack) {
+        this.callBack = callBack;
+    }
+
     public void setRotateMode(){
         if (lastItem != null) {
             converteBitmap(lastItem);
@@ -75,8 +85,11 @@ public class MatrixDrawView extends View {
         mode = ROTATE;
     }
 
-    public void setRemoveMode() {
-        mode = REMOVE;
+    public void removeImageItem() {
+        if(lastItem!=null){
+            arrayList.remove(lastItem);
+            invalidate();
+        }
     }
 
     public void addImageItem(ImageItem item){
@@ -161,15 +174,15 @@ public class MatrixDrawView extends View {
                 gestureDetector.onTouchEvent(event);
                 dragDetector.onTouchEvent(event);
                 matrixTurning(currentItem, currentValue);
-                invalidate();
             }
+            invalidate();
         } else if (mode == ROTATE) {
             if (lastItem != null) {
                 rotationDetector.onTouchEvent(event);
                 invalidate();
             }else{
                 if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-                    Toast.makeText(getContext(), "마지막선택 이미지가 없습니다. 다시 선택하고 mode 클릭하세요", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "선택 이미지가 없습니다. 다시 선택하고 mode 클릭하세요", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -181,7 +194,6 @@ public class MatrixDrawView extends View {
             case MotionEvent.ACTION_POINTER_UP: {
                 mode = NONE;
                 if(currentItem!=null) {
-                    currentItem.setSelected(false);
                     currentItem = null;
                 }
                 currentValue = null;
@@ -197,27 +209,23 @@ public class MatrixDrawView extends View {
     private ImageItem getCurrentItem(int x, int y) {
         ImageItem imageItem = null;
         for (ImageItem item : arrayList) {
+            item.setSelected(false);
             float[] matrixValue = new float[9];
             item.getMatrix().getValues(matrixValue);
             if (matrixValue[2] < x && (matrixValue[2] + item.getWidth()) > x) {
                 if (matrixValue[5] < y && (matrixValue[5] + item.getHeight()) > y) {
                     currentValue = matrixValue;
                     imageItem = item;
+                    if(callBack!=null){
+                        callBack.onImageClick(item);
+                    }
                 }
             }
         }
         if (imageItem != null) {
             imageItem.setSelected(true);
             arrayList.remove(imageItem);
-
-            if (mode == REMOVE) {
-                //삭제모드일땐 다시 추가하지 않음.
-                imageItem = null;
-                invalidate();
-            } else {
-                //삭제모드가 아닐때 아이템을 다시 추가하여 순서를 맨뒤로 추가함
-                arrayList.add(imageItem);
-            }
+            arrayList.add(imageItem);
         }
         return imageItem;
     }
