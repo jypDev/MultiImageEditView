@@ -7,6 +7,8 @@ import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -53,6 +55,11 @@ public class MatrixDrawView extends View {
     private float currentAngle;
     private float lastAngle;
 
+    private Bitmap rotateImage;
+    private Paint rotatePaint;
+    private Rect rotateRect;
+    private RectF rotateRectF;
+
     //Detector
     private ScaleGestureDetector gestureDetector;
     private DragDetector dragDetector;
@@ -74,6 +81,15 @@ public class MatrixDrawView extends View {
 
     //public method
 
+    public void setRotateImage(Bitmap rotateImage,int alpha) {
+        this.rotateImage = rotateImage;
+        Paint paint = new Paint();
+        paint.setAlpha(alpha);
+        this.rotatePaint = paint;
+        this.rotateRect = new Rect(0,0,rotateImage.getWidth(),rotateImage.getHeight());
+        this.rotateRectF = new RectF();
+    }
+
     public void setCallBack(MatrixEventCallBack callBack) {
         this.callBack = callBack;
     }
@@ -81,13 +97,17 @@ public class MatrixDrawView extends View {
     public void setRotateMode(){
         if (lastItem != null) {
             converteBitmap(lastItem);
+            rotateRectF.set(lastItem.getX(),lastItem.getY(),lastItem.getX()+lastItem.getWidth(),lastItem.getY()+lastItem.getHeight());
         }
         mode = ROTATE;
+        invalidate();
     }
 
     public void removeImageItem() {
         if(lastItem!=null){
+            lastItem.getBitmap().recycle();
             arrayList.remove(lastItem);
+            lastItem = null;
             invalidate();
         }
     }
@@ -139,7 +159,6 @@ public class MatrixDrawView extends View {
         ImageItem imageItem = new ImageItem(tempBitmap,item.getX(),item.getY());
         arrayList.add(imageItem);
         lastItem = imageItem;
-        invalidate();
     }
 
     @Override
@@ -151,6 +170,11 @@ public class MatrixDrawView extends View {
 
             if(item.isSelected()) {
                 canvas.drawRect(item.getX(), item.getY(), item.getX() + item.getWidth(), item.getY() + item.getHeight(), paint);  //image rect outline
+            }
+            if(mode==ROTATE){
+                if(rotateImage!=null&&rotatePaint!=null){
+                    canvas.drawBitmap(rotateImage,rotateRect,rotateRectF,rotatePaint);
+                }
             }
         }
     }
