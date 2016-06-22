@@ -2,7 +2,6 @@ package com.jypdev.example;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -29,8 +28,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.icon)));
         view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.sparrow_icon)));
         view.addImageItem(new ImageItem(BitmapFactory.decodeResource(getResources(), R.drawable.chrome_icon)));
-
-        view.setRotateImage(BitmapFactory.decodeResource(getResources(), R.drawable.rotate),30);
         Button rotateButton = (Button) findViewById(R.id.rotate_button);
         Button removeButton = (Button) findViewById(R.id.remove_button);
         Button addButton = (Button) findViewById(R.id.add_button);
@@ -39,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rotateButton.setOnClickListener(this);
         removeButton.setOnClickListener(this);
         addButton.setOnClickListener(this);
-
 
     }
 
